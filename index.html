@@ -1,20 +1,227 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catálogo | BOU&MUS</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catálogo | BOU&MUS</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
-    <header>
-        <h1>BOU&MUS</h1>
-        <p>CATÁLOGO</p>
-    </header>
+  <header>
+    <a class="brand" href="#catalogo">
+      <span class="brand-mark">BM</span>
+      <span class="brand-name">BOU&amp;MUS</span>
+    </a>
+    <a class="header-link" href="#catalogo">Catálogo <span>↓</span></a>
+  </header>
 
-    <main>
-        
-    </main>
+  <main id="catalogo">
+    <div class="toolbar">
+      <label class="search">
+        <span class="search-icon"></span>
+        <input id="search" type="search" placeholder="Buscar una prenda" aria-label="Buscar una prenda">
+      </label>
+
+      <div class="filters">
+        <button class="filter active" data-category="Todo">Todo</button>
+        <button class="filter" data-category="Pants">Pants</button>
+      </div>
+    </div>
+
+    <div class="result">
+      <span id="count">1 artículo</span>
+      <span>Disponibilidad actual</span>
+    </div>
+
+    <section class="products">
+      <article class="card" data-category="Pants">
+        <button
+          class="photo"
+          type="button"
+          aria-label="Ver detalles de Pants Y2K"
+        >
+          <span class="badge">Disponible</span>
+          <img
+            class="primary-image"
+            src="imagenes/pants-hombre/pants-y2k-modelo.jpeg"
+            alt="Modelo usando Pants Y2K negro con estampado rosa"
+          >
+          <img
+            class="secondary-image"
+            src="imagenes/pants-hombre/pants-y2k-detalle.jpeg"
+            alt="Vista de frente y espalda del Pants Y2K"
+          >
+          <span class="view-cue">Ver detalles</span>
+        </button>
+
+        <div class="info">
+          <div>
+            <p class="category">Pants</p>
+            <h2>Pants Y2K</h2>
+            <p class="variant">Negro / Rosa · Unitalla</p>
+          </div>
+          <p class="price">$500 MXN</p>
+        </div>
+      </article>
+    </section>
+
+    <p id="empty" class="empty" hidden>No encontramos prendas con esa búsqueda.</p>
+  </main>
+
+  <footer>
+    <div class="footer-brand">
+      <span class="brand-mark">BM</span>
+      <span class="brand-name">BOU&amp;MUS</span>
+    </div>
+    <p>Catálogo digital · Precios en pesos mexicanos</p>
+  </footer>
+
+  <dialog id="product-viewer" class="product-viewer">
+    <button id="viewer-close" class="viewer-close" type="button" aria-label="Cerrar detalles">×</button>
+
+    <div class="modal-gallery">
+      <div class="thumbnails">
+        <button
+          class="thumbnail active"
+          type="button"
+          data-image="imagenes/pants-hombre/pants-y2k-modelo.jpeg"
+          data-alt="Modelo usando Pants Y2K negro con estampado rosa"
+          aria-label="Ver fotografía del modelo"
+        >
+          <img src="imagenes/pants-hombre/pants-y2k-modelo.jpeg" alt="">
+        </button>
+
+        <button
+          class="thumbnail"
+          type="button"
+          data-image="imagenes/pants-hombre/pants-y2k-detalle.jpeg"
+          data-alt="Vista de frente y espalda del Pants Y2K"
+          aria-label="Ver frente y espalda"
+        >
+          <img src="imagenes/pants-hombre/pants-y2k-detalle.jpeg" alt="">
+        </button>
+      </div>
+
+      <div class="modal-main-image">
+        <img
+          id="viewer-image"
+          src="imagenes/pants-hombre/pants-y2k-modelo.jpeg"
+          alt="Modelo usando Pants Y2K negro con estampado rosa"
+        >
+      </div>
+    </div>
+
+    <div class="modal-details">
+      <p class="modal-category">Pants</p>
+      <h2>Pants Y2K</h2>
+      <p class="modal-price">$500 MXN</p>
+
+      <dl class="specs">
+        <div>
+          <dt>Color</dt>
+          <dd><span class="color-dots"><i></i><i></i></span>Negro / Rosa</dd>
+        </div>
+        <div>
+          <dt>Talla</dt>
+          <dd>Unitalla</dd>
+        </div>
+        <div>
+          <dt>Estado</dt>
+          <dd class="available">Disponible</dd>
+        </div>
+        <div>
+          <dt>Código</dt>
+          <dd>BM-PY2K-NR-001</dd>
+        </div>
+      </dl>
+
+      <button id="share-product" class="share-product" type="button">
+        <span id="share-label">Compartir producto</span><span>↗</span>
+      </button>
+      <p class="modal-note">
+        El botón para solicitar esta prenda se conectará al canal de pedidos al terminar el catálogo.
+      </p>
+    </div>
+  </dialog>
+
+  <script>
+    const search = document.querySelector("#search");
+    const filters = document.querySelectorAll(".filter");
+    const cards = document.querySelectorAll(".card");
+    const count = document.querySelector("#count");
+    const empty = document.querySelector("#empty");
+    const photos = document.querySelectorAll(".photo");
+    const viewer = document.querySelector("#product-viewer");
+    const viewerImage = document.querySelector("#viewer-image");
+    const viewerClose = document.querySelector("#viewer-close");
+    const thumbnails = document.querySelectorAll(".thumbnail");
+    const shareProduct = document.querySelector("#share-product");
+    const shareLabel = document.querySelector("#share-label");
+    let category = "Todo";
+
+    function filterCatalog() {
+      const text = search.value.toLowerCase();
+      let visible = 0;
+
+      cards.forEach(card => {
+        const matchCategory = category === "Todo" || card.dataset.category === category;
+        const matchSearch = card.textContent.toLowerCase().includes(text);
+        card.hidden = !(matchCategory && matchSearch);
+        if (!card.hidden) visible++;
+      });
+
+      count.textContent = `${visible} artículo${visible === 1 ? "" : "s"}`;
+      empty.hidden = visible !== 0;
+    }
+
+    search.addEventListener("input", filterCatalog);
+
+    filters.forEach(button => {
+      button.addEventListener("click", () => {
+        category = button.dataset.category;
+        filters.forEach(item => item.classList.toggle("active", item === button));
+        filterCatalog();
+      });
+    });
+
+    photos.forEach(photo => {
+      photo.addEventListener("click", () => {
+        shareLabel.textContent = "Compartir producto";
+        viewerImage.src = thumbnails[0].dataset.image;
+        viewerImage.alt = thumbnails[0].dataset.alt;
+        thumbnails.forEach((item, index) => item.classList.toggle("active", index === 0));
+        viewer.showModal();
+      });
+    });
+
+    viewerClose.addEventListener("click", () => viewer.close());
+    viewer.addEventListener("click", event => {
+      if (event.target === viewer) viewer.close();
+    });
+
+    thumbnails.forEach(thumbnail => {
+      thumbnail.addEventListener("click", () => {
+        viewerImage.src = thumbnail.dataset.image;
+        viewerImage.alt = thumbnail.dataset.alt;
+        thumbnails.forEach(item => item.classList.toggle("active", item === thumbnail));
+      });
+    });
+
+    shareProduct.addEventListener("click", async () => {
+      const message = "Pants Y2K · Negro / Rosa · Unitalla · $500 MXN · Código BM-PY2K-NR-001";
+
+      try {
+        if (navigator.share) {
+          await navigator.share({ title: "Pants Y2K | BOU&MUS", text: message });
+        } else {
+          await navigator.clipboard.writeText(message);
+          shareLabel.textContent = "Datos copiados";
+        }
+      } catch (error) {
+        /* El producto permanece abierto si se cancela el menú de compartir. */
+      }
+    });
+  </script>
 </body>
 </html>
