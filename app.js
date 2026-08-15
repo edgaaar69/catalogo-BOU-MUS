@@ -1,6 +1,6 @@
 // Si más adelante quieres abrir un chat directo, escribe aquí el número con lada de país.
 // Ejemplo México: const WHATSAPP_NUMBER = "5215512345678";
-const WHATSAPP_NUMBER = "";
+const WHATSAPP_NUMBER = "528148235548";
 
 const products = window.PRODUCTOS_BOU_MUS || [];
 const productsContainer = document.querySelector("#products");
