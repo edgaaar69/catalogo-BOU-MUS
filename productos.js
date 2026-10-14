@@ -8,8 +8,8 @@ window.PRODUCTOS_BOU_MUS = [
     "model": "Rayos rosa",
     "color": "Negro / Rosa",
     "price": 500,
-    "state": "Disponible",
-    "stock": 1,
+    "state": "Agotado",
+    "stock": 0,
     "folder": "imagenes/pants-hombre/pants-y2k/bm-0001-rayos-rosa",
     "images": [
       "imagenes/pants-hombre/pants-y2k/bm-0001-rayos-rosa/01-frente.jpeg",
@@ -20,8 +20,8 @@ window.PRODUCTOS_BOU_MUS = [
       {
         "sku": "BM-0001-UNI",
         "size": "Unitalla",
-        "quantity": 1,
-        "state": "Disponible"
+        "quantity": 0,
+        "state": "Agotado"
       }
     ]
   },
@@ -33,7 +33,7 @@ window.PRODUCTOS_BOU_MUS = [
     "color": "Negro / Blanco",
     "price": 500,
     "state": "Disponible",
-    "stock": 1,
+    "stock": 2,
     "folder": "imagenes/pants-hombre/pants-y2k/bm-0002-negro",
     "images": [
       "imagenes/pants-hombre/pants-y2k/bm-0002-negro/01-frente.jpeg",
@@ -44,7 +44,7 @@ window.PRODUCTOS_BOU_MUS = [
       {
         "sku": "BM-0002-UNI",
         "size": "Unitalla",
-        "quantity": 1,
+        "quantity": 2,
         "state": "Disponible"
       }
     ]
