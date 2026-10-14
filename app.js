@@ -66,7 +66,7 @@ function productCard(product, index) {
   return `
     <article class="card" data-code="${product.code}" data-category="${product.category}" data-search="${normalizeText(searchText)}">
       <button class="photo" type="button" data-action="open" aria-label="Ver detalles de ${product.name}, ${product.color}">
-        <span class="badge">${product.state}</span>
+        
         <img class="primary-image" src="${product.images[0]}" alt="${product.name} ${product.color}, vista de frente" ${index < 3 ? "fetchpriority=\"high\"" : "loading=\"lazy\""} decoding="async">
         <img class="secondary-image" src="${product.images[1]}" alt="${product.name} ${product.color} en modelo" loading="lazy" decoding="async">
         <span class="view-cue">Ver detalles</span>
@@ -80,6 +80,9 @@ function productCard(product, index) {
         </div>
         <div class="card-side">
           <p class="price">${productPrice(product)}</p>
+          <p class="product-status ${normalizeText(product.state || "Disponible")}">${normalizeText(product.state) === "agotado" ? "Sin existencias" : product.state || "Disponible"}</p>
+
+
           ${hasSizes ? `
             <button class="variant-toggle" type="button" data-action="toggle-sizes" aria-expanded="false" aria-label="Mostrar tallas de ${product.name}">
               <span>Tallas</span><i>+</i>
@@ -108,8 +111,36 @@ function buildFilters() {
   `).join("");
 }
 
+
 function renderProducts() {
-  productsContainer.innerHTML = products.map(productCard).join("");
+  const orden = {
+    disponible: 0,
+    proximamente: 1,
+    agotado: 2
+  };
+
+  const productosOrdenados = products
+    .map((producto, indice) => ({ producto, indice }))
+    .sort((a, b) => {
+      const estadoA = normalizeText(
+        a.producto.state || "Disponible"
+      );
+
+      const estadoB = normalizeText(
+        b.producto.state || "Disponible"
+      );
+
+      return (
+        (orden[estadoA] ?? 0) -
+        (orden[estadoB] ?? 0) ||
+        a.indice - b.indice
+      );
+    })
+    .map(item => item.producto);
+
+  productsContainer.innerHTML =
+    productosOrdenados.map(productCard).join("");
+
   filterCatalog();
 }
 
@@ -138,9 +169,27 @@ function selectVariant(variant) {
   activeVariant = variant;
   viewerPrice.textContent = money(variantPrice(activeProduct, variant));
   viewerCode.textContent = variant.sku;
-  viewerState.textContent = variant.quantity > 0 ? `Disponible · ${variant.quantity} ${variant.quantity === 1 ? "pieza" : "piezas"}` : "Agotado";
-  viewerState.classList.toggle("available", variant.quantity > 0);
-  viewerState.classList.toggle("sold-out", variant.quantity <= 0);
+  
+const estado = normalizeText(activeProduct.state || "Disponible");
+
+const disponible =
+  estado === "disponible" &&
+  variant.quantity > 0 &&
+  normalizeText(variant.state) !== "agotado";
+
+viewerState.textContent = disponible
+  ? `Disponible · ${variant.quantity} ${variant.quantity === 1 ? "pieza" : "piezas"}`
+  : estado === "proximamente"
+    ? "Próximamente"
+    : "Sin existencias";
+
+viewerState.classList.toggle("available", disponible);
+viewerState.classList.toggle("sold-out", !disponible);
+
+orderProduct.querySelector("span").textContent = disponible
+  ? "Pedir por WhatsApp"
+  : "Consultar por WhatsApp";
+
 
   viewerSizes.querySelectorAll(".size-option").forEach(button => {
     const selected = button.dataset.sku === variant.sku;
@@ -189,12 +238,33 @@ function closeViewer() {
   if (location.hash.startsWith("#BM-")) history.replaceState(null, "", location.pathname + location.search);
 }
 
+
 function selectedMessage() {
   const size = activeVariant?.size || "Sin talla seleccionada";
   const code = activeVariant?.sku || activeProduct.code;
   const price = variantPrice(activeProduct, activeVariant);
-  return `Hola, me interesa ${activeProduct.name} (${activeProduct.color}), talla ${size}, precio ${money(price)}, código ${code}. ${location.href}`;
+
+  const estado = normalizeText(
+    activeProduct.state || "Disponible"
+  );
+
+  const hayExistencias =
+    activeVariant?.quantity > 0 &&
+    normalizeText(activeVariant?.state) !== "agotado";
+
+  const producto = `${activeProduct.name} (${activeProduct.color}), talla ${size}, precio ${money(price)}, código ${code}. ${location.href}`;
+
+  if (estado === "proximamente") {
+    return `Hola, me interesa ${producto} Vi que aparece próximamente. ¿Tienen una fecha estimada de llegada?`;
+  }
+
+  if (estado === "agotado" || !hayExistencias) {
+    return `Hola, me interesa ${producto} Vi que está sin existencias. ¿Existe la posibilidad de conseguirlo nuevamente?`;
+  }
+
+  return `Hola, quiero pedir ${producto} ¿Me pueden confirmar su disponibilidad?`;
 }
+
 
 search.addEventListener("input", filterCatalog);
 

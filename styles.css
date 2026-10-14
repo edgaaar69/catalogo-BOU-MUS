@@ -326,6 +326,43 @@ h2 {
   flex-direction: column;
 }
 
+/* ESTADOS DE DISPONIBILIDAD */
+.product-status {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 6px 0 0;
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Pequeño círculo indicador */
+.product-status::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+/* DISPONIBLE - Verde */
+.product-status.disponible {
+  color: #367A4B;
+}
+
+/* AGOTADO - Rojo */
+.product-status.agotado {
+  color: #B03932;
+}
+
+/* PRÓXIMAMENTE - Naranja */
+.product-status.proximamente {
+  color: #A57727;
+}
+
+
 .variant-toggle {
   display: flex;
   align-items: center;
